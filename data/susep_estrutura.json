@@ -1,0 +1,336 @@
+{
+ "Ses_Administradores.csv": {
+  "bytes": 41755092
+ },
+ "Ses_campos.csv": {
+  "bytes": 123477,
+  "cabecalho": "nuitem;noitem;nuquad;mercado;inivigencia;fimvigencia",
+  "exemplo": [
+   "11186;        Despesas antecipadas não relacionadas a resseguro;22A;;201106;210001",
+   "11187;      CUSTOS DE AQUISIÇÃO DIFERIDOS;22A;;201106;210001",
+   "11188;        Seguros;22A;;201106;201302"
+  ]
+ },
+ "Ses_cias.csv": {
+  "bytes": 40917,
+  "cabecalho": "Coenti;Noenti;Cogrupo;Nogrupo",
+  "exemplo": [
+   "04561     ;BRASILPREV NOSSO FUTURO SEGUROS E PREVICÊNCIA S.A. (ATUAL DENOMINAÇÃO DE MAPFRE NOSSA CAIXA VIDA E PREVIDÊNCIA S.A.);     ;",
+   "04570     ;IZA SEGURADORA S.A.;     ;",
+   "04600     ;BVIX SEGURADORA SA;     ;"
+  ]
+ },
+ "Ses_dependencias.csv": {
+  "bytes": 411242
+ },
+ "Ses_diversos.csv": {
+  "bytes": 76,
+  "cabecalho": "descricao;valor",
+  "exemplo": [
+   "Data_Final                                        ;202608"
+  ]
+ },
+ "Ses_grupos_economicos.csv": {
+  "bytes": 12809128,
+  "cabecalho": "damesano;coenti;noenti;cogrupo;nogrupo",
+  "exemplo": [
+   "200405;01007;SABEMI SEGURADORA SA                                                                                                              ;01225;INDEPENDENTE                            ",
+   "200708;01619;DAYPREV VIDA E PREVIDÊNCIA S.A.                                                                                                   ;99999;OUTROS GRUPOS                           ",
+   "201001;02062;LUIZASEG SEGUROS S/A                                                                                                              ;01203;CARDIF                                  "
+  ]
+ },
+ "Ses_limite_ret.csv": {
+  "bytes": 21027176,
+  "cabecalho": "coenti;damesano;coramo;valor",
+  "exemplo": [
+   "01007;201207;0977;1015000",
+   "05096;201111;0457;1262437,8964425",
+   "05436;200505;0739;905739,24"
+  ]
+ },
+ "Ses_pl_margem.csv": {
+  "bytes": 3678350,
+  "cabecalho": "coenti;damesano;plajustado;margem;pl;AjustesContabeis;AjustesEconomicos;NovoPla;CMR",
+  "exemplo": [
+   "06921;200308;58514379,95;0;90847047,85;-32332667,9;0;0;0",
+   "10065;200308;0;0;0;0;0;0;0",
+   "10081;200308;378245,89;0;378245,89;0;0;0;0"
+  ]
+ },
+ "ses_prev_trad_resgates.csv": {
+  "bytes": 438318,
+  "cabecalho": "damesano;coenti;resg_total;resg_parcial",
+  "exemplo": [
+   "200603;03794;0;0",
+   "201204;03794;0;0",
+   "200705;03794;0;0"
+  ]
+ },
+ "Ses_prov.csv": {
+  "bytes": 1477392,
+  "cabecalho": "coenti;damesano;valor",
+  "exemplo": [
+   "05096;200009;31323974,9",
+   "05096;200010;32119276,82",
+   "05096;200011;35829519,51"
+  ]
+ },
+ "SES_prov_segprev.csv": {
+  "bytes": 217352,
+  "cabecalho": "coenti;damesano;valor",
+  "exemplo": [
+   "01007;201207;2446005,43",
+   "01619;201207;818,28",
+   "06173;201211;41368085"
+  ]
+ },
+ "Ses_ramos.csv": {
+  "bytes": 7126,
+  "cabecalho": "coramo;noramo",
+  "exemplo": [
+   "1101      ;1101 - Seguro Agr sem cob do FESR(RUN OFF)",
+   "1601      ;1601 - Microsseguros de Pessoas",
+   "2201      ;2201 - Sobrevivência de Assistido"
+  ]
+ },
+ "Ses_rmovram.csv": {
+  "bytes": 293060576,
+  "cabecalho": "ENTCODIGO;MRFMESANO;RAMCODIGO;GRACODIGO;MRASINRETSEGURO;MRAprememitrvne;MRASINRETTOTAL;MRASINRETTOTALESTRANG;MRASINRETVARIBNR;MRASINRETSERVASSIST;MRAVARDESPOUTRAS;MRAVARDESPSEGURO;MRAVARDESPTOTAL;MRALIMITERETENC;MRAPREMARECPROVR;MRADIRCREDPROVR;MRADEBSEGRECCOSCED;MRAPREMARECTOTALESTRANG;MRACUSTODIFCOMI;MRACUSTODIFDESCONTO;MRACUSTODIFOUTROS;MRACUSTODIFTOTAL;MRADESPCOSAC;MRADESPCOSCED;MRADESPOUTRAS;MRADESPRESCED;MRADESPRESCEDADMITIDO;MRADESPRESCEDEVENTUAL;MRADESPRESCEDLOCAL;MRADESPRETRAC;MRADESPSEGURO;MRADESPTOTAL;MRADIRCREDCOSAC;MRADIRCREDCOSCED;MRADIRCREDIOF;MRADIRCREDRESCED;MRADIRCREDRESCEDADMITIDO;MRADIRCREDRESCEDEVENTUAL;MRADIRCREDRESCEDLOCAL;MRADIRCREDRETLIQ;MRADIRCREDRETRAC;MRADIRCREDSEGURO;MRADIRCREDTOTAL;MRADIRCREDTOTALESTRANG;MRAIMPORTRESSEGURADA;MRAIMPORTRESSEGURADAESTRANG;MRAIMPORTSEGURADA;MRAIMPORTSEGURADAESTRANG;MRAPREMARECCOSAC;MRAPREMARECCOSCED;MRAPREMARECIOF;MRAPREMARECRESCED;MRADEBSEGRESCEDADMITIDO;MRARESLIQPREM;MRARESLIQPREMESTRANG;MRARESLIQSIN;MRARESLIQSINESTRANG;MRARESULTLIQ;MRARESULTLIQESTRANG;MRASINALIQCOSAC;MRASINALIQCOSCED;MRASINALIQRESCED;MRASINALIQRESCEDADMITIDO;MRASINALIQRESCEDEVENTUAL;MRASINALIQRESCEDLOCAL;MRASINALIQRETLIQ;MRASINALIQRETRAC;MRASINALIQSEGURO;MRASINALIQSEGVENCIDO;MRASINALIQTOTAL;MRASINALIQTOTALESTRANG;MRASINRETCOSAC;MRASINRETCOSCED;MRASINRETRESCED;MRASINRETRESCEDADMITIDO;MRASINRETRESCEDEVENTUAL;MRASINRETRESCEDLOCAL;MRASINRETRETLIQ;MRASINRETRETRAC;MRASINRETSALVRESSARC;MRAPREMEMITRESCEDADMITIDO;MRADEBSEGRESCEDEVENTUAL;MRADEBSEGRESCEDLOCAL;MRAPREMARECRETLIQ;MRAPREMARECRETRAC;MRAPREMARECSEGURO;MRAPREMARECTOTAL;MRADEBSEGRECTOTALESTRANG;MRAPREMCANCELSEG;MRAPREMEMITCOSAC;MRAPREMEMITCOSCED;MRAPREMEMITDESCONTO;MRAPREMEMITRESCED;MRAPREMEMITRESCEDEVENTUAL;MRAPREMEMITRESCEDLOCAL;MRAPREMEMITRESTITUICAO;MRAPREMEMITRETLIQ;MRAPREMEMITRETRAC;MRAPREMEMITSEGURO;MRAPREMEMITSEGUROESTRANG;MRAPREMEMITTOTAL;MRAPREMEMITTOTALESTRANG;MRAPREMNAOGANHO;MRAPREMNAOGANHOESTRANG;MRAPROVNAOCOMP;MRAPROVNAOCOMPESTRANG;MRAPROVSINIBNR;MRARESLIQCOMI;MRASINRETCONSORCIOSFUNDOS;MRAPREMEMITCONSORCIOSFUNDOS;MRAPPNGRISCOSNAOEMITIDOS;MRAPREMCANCELCOSSACEI;MRAPREMEMITRESTCOSSACEI;MRAPREMEMITDESCCOSSACEI;MRAPREMEMITDESCCOSSCED;MRAPREMEMITDESCRESSCED;MRAPREMCANCELPREMDIRETSEG;MRAPREMEMITRESTITUICAOPREMDIR;MRAPREMEMITDESCONTOPREMDIR;MRASINRETRECUPCONSFUND;MRADESPRESG;MRADESPBENEF;MRAPREMEMITRESTCOSSCED;MRAPREMEMITRESTRESSLOCAL;MRAPREMEMITRESTRESSEVENTUAL;MRAPREMEMITRESTRESSADMITIDO;MRAPREMEMITCANCCOSSCED;MRAPREMEMITCANCRESSLOCAL;MRAPREMEMITCANCRESSEVENTUAL;MRAPREMEMITCANCRESSADMITIDO;MRAPROVCOMPOUTROS1;MRAPROVCOMPREMISSAO1;MRAPROVCOMPRENDAEVENTOALEATORIO1;MRAPROVCOMPPROVBENCONCEDIDO1;MRAPROVPPNGRETROCESSAO;MRAPROVSINLIQUIDAR;MRAPROVSINOCORRNAVISADOS;MRARESTCOSSACEITO;MRARESTRESSEGLOCAL;MRARESTRESSEGEVENTUAL;MRARESTRESSEGADMITIDO;MRACANCCOSSEGCEDIDO;MRACANCRESSEGLOCAL;MRACANCRESSEGEVENTUAL;MRACANCRESSEGADMITIDO;MRAPREMDIRPARCAVENC;MRAPREMDIRPARCVENCI;MRAPREMDIRTOTPREMRECEBER;MRAPREMDIRADICFRAC;MRAPREMDIRCUSTAPOL;MRAPREMDIRIOF;MRAPREMDIRCOSCED;MRAPREMDIRRESSEGCED;MRAPREMDIRRECRETRAC;MRAPREMDIRCOSAC;MRAPREMDIRRESPROPRIA;MRAPREMDIRRETRAC;MRAPREMDIRCOSAC1;MRAPREMDIRRESPPROPRIA;MRAPREMDIRPROVRISCO;MRAPREMDIRRISCVIGNEMI;MRAPREMDIRTOTDIRCRED;MRAPROVCOMPOUTRASPROV;MRAPREMTRANSFERIDOS;MRAPREMTRANSACEITAS;MRAPREMTRANSCEDIDAS;MRAPREMEMITCONVDPVAT;MRASINRETVARSINRET;MRASINRETSALVRESSARCRETRAC;mraPremiosContaRetDireta;mraPremiosContaCossAceito;mraPremiosContaCossCedido;mraPremiosContaRessCedido;mraPremiosContaRetLiquida;mraPremiosContaVarProv;mraPremiosContaRetrAceita;mraPremiosCintaPremGanho;mraSinRetVarprovibner",
+  "exemplo": [
+   "01007;6/1/1999;11;01;0;;1206;;0;;0;4;4;;;;;;410;0;0;410;0;0;0;0;;;;145;0;145;0;0;0;0;;;;0;0;0;0;;;;0;;0;0;0;0;;1210;;1206;;-145;;0;0;0;;;;0;13027;0;0;13027;;0;0;0;;;;0;1206;0;;;;0;2536;0;2536;;0;0;0;0;0;;;0;0;1209;0;;1209;;1;;3379;;0;149;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+   "01007;6/1/1999;15;01;0;;4;;0;;0;-1;-1;;;;;;27;0;0;27;0;0;0;0;;;;11;0;11;0;0;0;0;;;;0;0;0;0;;;;0;;0;0;0;0;;35;;4;;21;;0;0;0;;;;0;88;0;0;88;;0;0;0;;;;0;4;0;;;;0;58;0;58;;0;0;0;0;0;;;0;0;40;0;;40;;-5;;74;;0;10;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+   "01007;6/1/1999;21;06;0;;349;;0;;0;0;0;;;;;;0;0;0;0;0;0;0;0;;;;12;0;12;0;0;0;0;;;;0;0;0;0;;;;0;;0;0;0;0;;167;;349;;-194;;0;0;0;;;;0;5412;0;0;5412;;0;0;0;;;;0;349;0;;;;0;0;0;0;;0;0;0;0;0;;;0;0;150;0;;150;;17;;137;;0;12;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"
+  ]
+ },
+ "Ses_seg_prov_det.csv": {
+  "bytes": 3882482,
+  "cabecalho": "damesano;coenti;prem_n_ganhos;insuf_prem;insuf_contrib;benef_conceder;outras_provisoes;mat_benef_conceder;osc_riscos;riscos_n_expirados;sinistros_liquidar;benef_concedido;sinistros_ibnr;exced_financeiro;mat_benef_concedidos;benef_reg;eventos_ibnr;total_emp;pdr;pcc;pet;pvr;opt",
+  "exemplo": [
+   "201204;01007;8509541,37;0;167797,23;0;2614908,18;141950,79;6570,85;105412,9;26723316,43;0;18051417,33;0;319635,35;1016221,77;478008,35;58134780,55;0;0;0;0;0",
+   "200803;01007;7861172,34;0;69099,83;0;1373682,98;249958,01;40612,38;52230,3;3068976,73;0;3096347,37;0;358155,23;233348,35;77563,3;16481146,82;0;0;0;0;0",
+   "200408;01007;32345,45;0;21454,13;0;79348,33;356255,71;17609,85;1292,04;825041,88;0;1701633,72;0;260356,8;15452,48;4431,35;3315221,74;0;0;0;0;0"
+  ]
+ },
+ "Ses_seguros.csv": {
+  "bytes": 136969325,
+  "cabecalho": "damesano;coenti;cogrupo;coramo;premio_direto;premio_de_seguros;premio_retido;premio_ganho;sinistro_direto;sinistro_retido;desp_com;premio_emitido2;premio_emitido_cap;despesa_resseguros;sinistro_ocorrido;receita_resseguro;sinistros_ocorridos_cap;recuperacao_sinistros_ocorridos_cap;rvne;conveniodpvat;consorciosefundos",
+  "exemplo": [
+   "200009;05355;00299;0981;350407,58;350562,87;350291,83;322318,58;9115,33;9153,15;91794,72;0;0;0;0;0;0;0;0;0;0",
+   "200009;05363;00451;0993;2021293;1269929;1270199;1289821;1064400;1064400;909600;0;0;0;0;0;0;0;0;0;0",
+   "200009;05401;00272;0111;0;0;2108,63;1986,03;0;13317,38;4,34;0;0;0;0;0;0;0;0;0;0"
+  ]
+ },
+ "SES_UF2.csv": {
+  "bytes": 471348390,
+  "cabecalho": "coenti;damesano;ramos;UF;premio_dir;premio_ret;sin_dir;prem_ret_liq;gracodigo;salvados;recuperacao",
+  "exemplo": [
+   "06785;200811;0435;RN;0;0;0;0;04;0;0",
+   "06921;200507;0553;MG;0;0;239,86;0;05;0;0",
+   "08737;200511;1066;SC;0;0;0;0;10;0;0"
+  ]
+ },
+ "Ses_vgbl_fundos.csv": {
+  "bytes": 225162,
+  "cabecalho": "coenti;damesano;fundos",
+  "exemplo": [
+   "03166     ;200412    ;5804497,55",
+   "03166     ;200610    ;23419181,94",
+   "04707     ;201112    ;25910351250,29"
+  ]
+ },
+ "Ses_vgbl_resgates.csv": {
+  "bytes": 488295,
+  "cabecalho": "damesano;coenti;resg_total;resg_parcial;Resg_Pag_programado",
+  "exemplo": [
+   "200703;06173;7175,23;9010,24;0",
+   "200812;03816;32624767,14;19069949,27;0",
+   "200601;08141;25965965,2;6532608,54;0"
+  ]
+ },
+ "ses_transferenciasexternas.csv": {
+  "bytes": 648710,
+  "cabecalho": "COENTI;DAMESANO;TIPOTRANSF;TIPOPLANO;VALOR;QUANTIDADE",
+  "exemplo": [
+   "02895;201009;D;PGBL;2950916,39;8",
+   "02895;201009;D;VGBL;134196,01;4",
+   "02895;201009;R;PGBL;154242,48;4"
+  ]
+ },
+ "ses_valoresresmovgrupos.csv": {
+  "bytes": 259893803,
+  "cabecalho": "COENTI;DAMESANO;CMPID;GRACODIGO;VALOR;ID",
+  "exemplo": [
+   "38873;201103;63;07;0;416906",
+   "38873;201103;63;08;0;416907",
+   "38873;201103;64;07;0;416908"
+  ]
+ },
+ "ses_gruposramos.csv": {
+  "bytes": 563,
+  "cabecalho": "GRAID;GRANOME;GRACODIGO",
+  "exemplo": [
+   "1;01 - Patrimonial;01",
+   "2;02 - Riscos Especiais;02",
+   "3;03 - Responsabilidades;03"
+  ]
+ },
+ "ses_quantcap.csv": {
+  "bytes": 1664177,
+  "cabecalho": "COENTI;DAMESANO;ESTOQUE_TITULOS;CANCELADOS;RESGATADOS",
+  "exemplo": [
+   "21334;200104;2324945;13369;26291",
+   "21334;200105;1663856;13169;44464",
+   "21334;200106;1976680;15087;295930"
+  ]
+ },
+ "ses_quantprev_benef.csv": {
+  "bytes": 3232204,
+  "cabecalho": "COENTI;DAMESANO;TIPO;ESTOQUE;INCLUSOES;EXCLUSOES",
+  "exemplo": [
+   "10031;200212;TRAD-APOSENTADORIA;4;0;0",
+   "01007;201302;TRAD-APOSENTADORIA;39;0;0",
+   "10065;201306;TRAD-APOSENTADORIA;3796;312;1"
+  ]
+ },
+ "ses_quantprev_part.csv": {
+  "bytes": 6595935,
+  "cabecalho": "COENTI;DAMESANO;TIPO;ESTOQUE;INCLUSOES;EXCLUSOES;CANCELADOS",
+  "exemplo": [
+   "10677;201008;TRAD-APOSENTADORIA;37;0;0;2",
+   "05975;200006;TRAD-APOSENTADORIA;121;0;0;22",
+   "10898;200903;TRAD-APOSENTADORIA;204;3;6;0"
+  ]
+ },
+ "ses_prev_uf.csv": {
+  "bytes": 11994992,
+  "cabecalho": "COENTI;DAMESANO;UF;CONTRIB;BENEFPAGO;RESGPAGO;NUMPARTIC;NUMBENEF;NUMRESG",
+  "exemplo": [
+   "01007;201001;AL;4311,09;336,86;0;1389;3;0",
+   "01007;200409;BA;846,42;0;0;2;0;0",
+   "01007;200709;ES;1560,7;0;0;513;0;0"
+  ]
+ },
+ "ses_cap_uf.csv": {
+  "bytes": 5444701,
+  "cabecalho": "COENTI;DAMESANO;UF;PREMIO;RESGPAGO;SORTPAGO;NUMPARTIC;RESGATANTES;SORTEIOS",
+  "exemplo": [
+   "20141;200211;AC;410615,72;121909,16;8912,16;8478;216;15",
+   "20141;200211;DF;4619484,32;2117091,27;125002,9;76850;3804;171",
+   "20141;200211;MS;1720396,97;579398,2;41518,04;33663;1098;74"
+  ]
+ },
+ "ses_pgbl_uf.csv": {
+  "bytes": 5348368,
+  "cabecalho": "COENTI;DAMESANO;UF;CONTRIB;BENEFPAGO;RESGPAGO;NUMPARTIC;NUMBENEF;NUMRESG",
+  "exemplo": [
+   "06866;201305;MA;355930,81;;752214,35;690;;6",
+   "06866;201305;MG;2808069,65;;2103848,56;4400;;50",
+   "06866;201305;MS;232212,06;;221494,52;937;;3"
+  ]
+ },
+ "ses_provramos.csv": {
+  "bytes": 80219111,
+  "cabecalho": "damesano;coenti;coramo;ppng;ppngretro;ppngrvne;pip;psl;ibnr;ibner;pda;pcp;outras;provbenefconceder;provbenefconcedido;rec_sinliq;rec_sinliqadm;rec_sinliqjud;rec_ibnr;rec_ibner;pdr;pcc",
+  "exemplo": [
+   "200901;01627;0141;0;0;0;0;68548,21;0;0;0;0;0;0;0;0;0;0;0;0;0;0",
+   "200901;02143;0977;22107305,92;0;10511669,92;1589260,37;3298976,81;21120808,03;0;0;1509228,14;0;0;0;0;0;0;0;0;0;0",
+   "200901;02143;0982;0;0;0;0;850;89743,82;0;0;0;0;0;0;0;0;0;0;0;0;0"
+  ]
+ },
+ "ses_prev_cap_uf.csv": {
+  "bytes": 9656416,
+  "cabecalho": "coenti;damesano;uf;valor",
+  "exemplo": [
+   "01007;200310;MS;74",
+   "01007;200311;PR;121",
+   "01007;200311;RJ;450"
+  ]
+ },
+ "ses_pgbl_contrib.csv": {
+  "bytes": 3397831,
+  "cabecalho": "coenti;valor;damesano;uf",
+  "exemplo": [
+   "02101;0;200903;SP",
+   "02101;50;201003;SP",
+   "02101;150;200506;SP"
+  ]
+ },
+ "ses_pgbl_fundos.csv": {
+  "bytes": 257003,
+  "cabecalho": "coenti;damesano;fundos",
+  "exemplo": [
+   "03166     ;200407    ;37870348,5",
+   "03166     ;200506    ;59363719,84",
+   "03166     ;200606    ;86047114,83"
+  ]
+ },
+ "ses_pgbl_resgates.csv": {
+  "bytes": 453170,
+  "cabecalho": "damesano;coenti;resg_total;resg_parcial;Resg_Pag_programado",
+  "exemplo": [
+   "200907;04707;19288074,4;19907362,82;0",
+   "200807;05142;0;7374947,76;0",
+   "200907;05142;197629,78;8744989,14;0"
+  ]
+ },
+ "ses_contatos.csv": {
+  "bytes": 145206559
+ },
+ "SES_Balanco.csv": {
+  "bytes": 749756522,
+  "cabecalho": "coenti;damesano;cmpid;valor;seq;quadro",
+  "exemplo": [
+   "20621;199701;01;7343;1;22A",
+   "20621;199701;01;1421442;1;23 ",
+   "20621;199701;01;0;1;22P"
+  ]
+ },
+ "SES_ValoresMovRamos.csv": {
+  "bytes": 560907744,
+  "cabecalho": "coenti;damesano;cmpid;ramcodigo;gracodigo;valor;seq;quadro",
+  "exemplo": [
+   "01007;200705;994;45;07;3,2;10000;2",
+   "01007;200705;5294;91;09;-10395,81;10050;2",
+   "01007;200705;5294;93;09;-1625,58;10050;2"
+  ]
+ },
+ "Ses_Cessoes_Recebidas.csv": {
+  "bytes": 9565286,
+  "cabecalho": "coenti;damesano;tipo_cessao;gracodigo;cessao;recuperacao;comissao;corretagem",
+  "exemplo": [
+   "56448;202412;Retrocessao;14;71166;-206828;31705;0",
+   "05177;201608;Retrocessao;06;0;3;0;0",
+   "09938;201701;Retrocessao;04;0;8;0;0"
+  ]
+ },
+ "Ses_Dados_Cap.csv": {
+  "bytes": 458738,
+  "cabecalho": "coenti;damesano;codModal;modalidade;receitasCap;valorResg;sorteiosPagos",
+  "exemplo": [
+   "24813;202102;4;Incentivo;7061415,86;8561738,65;3191048,22",
+   "29319;202504;3;Popular;-90;116181,5;17860,84",
+   "28258;202504;7;Instrumento de Garantia;5469187,97;6288497,5448;0"
+  ]
+ },
+ "Ses_Contrib_Benef.csv": {
+  "bytes": 1104733,
+  "cabecalho": "coenti;damesano;tipoProd;contrib;benef",
+  "exemplo": [
+   "06301;202112;PrevTrad;163516,72;75697,08",
+   "10961;200908;PrevTrad;22776,39;0",
+   "10677;200605;PrevTrad;27251,99;1086,36"
+  ]
+ },
+ "Ses_part_acion.csv": {
+  "bytes": 35417793
+ },
+ "LimiteRetProxVig.csv": {
+  "bytes": 222228,
+  "cabecalho": "04383     ;180 SEGUROS S.A.;0112;2046000;202608",
+  "exemplo": [
+   "04383     ;180 SEGUROS S.A.;0114;2046000;202608",
+   "04383     ;180 SEGUROS S.A.;0118;2046000;202608",
+   "04383     ;180 SEGUROS S.A.;0141;2046000;202608"
+  ]
+ }
+}
