@@ -49,10 +49,10 @@ const pctN = (v) => `${nf0.format(v)}%`, pctTip = (v) => `${nf1.format(v)}%`;
 
 /* ------------------------------------------------------------------ SUSEP: agregações */
 function susepMensal(sel) {
-  // sel: "SEG" (seguros exceto VGBL), "VGBL" ou código do grupo de ramo
+  // sel: "SEG" (todos os grupos de ramos) ou o código de um grupo
   const out = new Map();
   for (const [m, l, pd, pg, so, dc] of D.susep.serie) {
-    if (sel === "SEG" ? l === "VGBL" : l !== sel) continue;
+    if (sel !== "SEG" && l !== sel) continue;
     const o = out.get(m) || { pd: 0, pg: 0, so: 0, dc: 0 };
     o.pd += pd; o.pg += pg; o.so += so; o.dc += dc;
     out.set(m, o);
@@ -75,7 +75,30 @@ function ltmResumo(sel) {
   const r = (a) => ({ pd: soma(a, "pd"), pg: soma(a, "pg"), so: soma(a, "so"), dc: soma(a, "dc") });
   return { atual: r(atual), ant: r(ant), temAnt: ant.length === 12 };
 }
-const nomeLinha = (l) => (l === "SEG" ? "Seguros (exceto VGBL)" : D.susep.linhas[l] || l);
+const nomeLinha = (l) => (l === "SEG" ? "Seguros (todos os ramos)" : D.susep.linhas[l] || l);
+
+/* previdência e capitalização: séries mensais por produto (VGBL, PGBL, TRAD, CAP) */
+const PRODUTOS = [["VGBL", "Contribuições VGBL"], ["PGBL", "Contribuições PGBL"], ["TRAD", "Previdência tradicional"], ["CAP", "Capitalização"]];
+const prod = (k) => (D.susep && D.susep.produtos ? D.susep.produtos[k] : null);
+function prodLTM(k) {
+  const p = prod(k);
+  if (!p || p.serie.length < 12) return null;
+  const v = p.serie.map((x) => x[1]), n = v.length, sum = (a) => a.reduce((x, y) => x + y, 0);
+  return { atual: sum(v.slice(n - 12)), ant: n >= 24 ? sum(v.slice(n - 24, n - 12)) : null, ultima: p.serie[n - 1][0] };
+}
+function prodMovel(k, meses) {
+  // soma móvel de 12 meses alinhada aos meses do eixo
+  const p = prod(k);
+  if (!p) return null;
+  const mapa = new Map(p.serie), idx = p.serie.map((x) => x[0]);
+  return meses.map((m) => {
+    const i = idx.indexOf(m);
+    if (i < 11) return null;
+    let t = 0;
+    for (let j = i - 11; j <= i; j++) t += mapa.get(idx[j]) || 0;
+    return t / 1e9;
+  });
+}
 
 /* ------------------------------------------------------------------ ANS: agregações */
 function ansMensal(cob, chave) {
@@ -109,15 +132,13 @@ const barra = (share, max) => `<span class="barra" style="width:${Math.max(2, (s
 function renderGeral() {
   const tiles = [];
   if (D.susep) {
-    const s = ltmResumo("SEG"), v = ltmResumo("VGBL");
+    const s = ltmResumo("SEG");
     const per = `12 meses até ${mesLongo(D.susep.ultima)}`;
-    tiles.push(tile("Prêmios de seguros (ex-VGBL)", reais(s.atual.pd), `${delta(s.temAnt ? var_(s.atual.pd, s.ant.pd) : null)} a/a · ${per}`));
-    tiles.push(tile("Sinistralidade (ex-VGBL)", pct(s.atual.so / s.atual.pg), `${per} · antes ${pct(s.ant.so / s.ant.pg)}`));
-    if (D.susep.linhas.VGBL) tiles.push(tile("Prêmios VGBL", reais(v.atual.pd), `${delta(v.temAnt ? var_(v.atual.pd, v.ant.pd) : null)} a/a · ${per}`));
-    if (D.susep.pgbl && D.susep.pgbl.length >= 24) {
-      const p = D.susep.pgbl.map((x) => x.v), n = p.length;
-      const a = p.slice(n - 12).reduce((x, y) => x + y, 0), b = p.slice(n - 24, n - 12).reduce((x, y) => x + y, 0);
-      tiles.push(tile("Contribuições PGBL", reais(a), `${delta(var_(a, b))} a/a · ${per}`));
+    tiles.push(tile("Prêmios de seguros", reais(s.atual.pd), `${delta(s.temAnt ? var_(s.atual.pd, s.ant.pd) : null)} a/a · ${per}`));
+    tiles.push(tile("Sinistralidade de seguros", pct(s.atual.so / s.atual.pg), `${per} · antes ${pct(s.ant.so / s.ant.pg)}`));
+    for (const [k, rot] of PRODUTOS) {
+      const r = prodLTM(k);
+      if (r && k !== "TRAD") tiles.push(tile(rot, reais(r.atual), `${delta(r.ant ? var_(r.atual, r.ant) : null)} a/a · 12 meses até ${mesLongo(r.ultima)}`));
     }
   }
   if (D.ans) {
@@ -132,10 +153,13 @@ function renderGeral() {
   document.getElementById("g-geral-benef").closest(".card").hidden = !D.ans;
 
   if (D.susep) {
-    const seg = movel(susepMensal("SEG")), vg = movel(susepMensal("VGBL"));
-    const meses = D.susep.meses;
-    const sets = [L("Seguros (ex-VGBL)", seg.map((x) => (x ? x.pd / 1e9 : null)), 0)];
-    if (D.susep.linhas.VGBL) sets.push(L("VGBL", vg.map((x) => (x ? x.pd / 1e9 : null)), 1));
+    const seg = movel(susepMensal("SEG"));
+    // a partir do primeiro mês com produtos de previdência, para as séries começarem juntas
+    const iniProd = Math.min(...PRODUTOS.map(([k]) => prod(k)?.serie[11]?.[0] ?? Infinity));
+    const meses = D.susep.meses.filter((m) => !isFinite(iniProd) || m >= iniProd);
+    const off = D.susep.meses.length - meses.length;
+    const sets = [L("Seguros", seg.slice(off).map((x) => (x ? x.pd / 1e9 : null)), 0)];
+    [["VGBL", "VGBL"], ["PGBL", "PGBL"], ["CAP", "Capitalização"]].forEach(([k, n], i) => { const d = prodMovel(k, meses); if (d) sets.push(L(n, d, i + 1)); });
     Graf.render("g-geral-premios", "xy", { labels: meses.map(mesRot), series: sets, fmt: bi, fmtTip: biTip,
       tituloTip: (i) => `12 meses até ${mesLongo(meses[i])}` });
   }
@@ -154,8 +178,8 @@ function renderSeguros() {
   if (!D.susep) return;
   const sel = document.getElementById("f-seg-linha");
   if (!sel.options.length) {
-    const ops = [["SEG", "Seguros (exceto VGBL)"], ...Object.entries(D.susep.linhas).filter(([k]) => k !== "VGBL").sort((a, b) => a[1].localeCompare(b[1])), ["VGBL", "VGBL"]];
-    sel.innerHTML = ops.filter(([k]) => k === "SEG" || D.susep.linhas[k]).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join("");
+    const ops = [["SEG", "Seguros (todos os ramos)"], ...Object.entries(D.susep.linhas).sort((a, b) => a[1].localeCompare(b[1]))];
+    sel.innerHTML = ops.map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join("");
     sel.addEventListener("change", () => { selSeg = sel.value; renderSeguros(); });
   }
   sel.value = selSeg;
@@ -168,7 +192,7 @@ function renderSeguros() {
     tile("Prêmio ganho", reais(r.atual.pg), `${delta(r.temAnt ? var_(r.atual.pg, r.ant.pg) : null)} a/a`),
     tile("Sinistralidade", pct(r.atual.so / r.atual.pg), `${deltaPP(r.atual.so / r.atual.pg - r.ant.so / r.ant.pg, true)} vs 12m anteriores`),
     tile("Comissionamento", pct(r.atual.dc / r.atual.pg), `${deltaPP(r.atual.dc / r.atual.pg - r.ant.dc / r.ant.pg, true)} vs 12m anteriores`),
-    selSeg !== "SEG" && selSeg !== "VGBL" ? tile("Peso no mercado (ex-VGBL)", pct(r.atual.pd / tot.atual.pd), "do prêmio emitido em 12 meses") : "",
+    selSeg !== "SEG" ? tile("Peso no mercado de seguros", pct(r.atual.pd / tot.atual.pd), "do prêmio emitido em 12 meses") : "",
   ].join("");
 
   const mens = susepMensal(selSeg), mov = movel(mens);
@@ -185,20 +209,18 @@ function renderSeguros() {
   ] });
 
   // tabela de grupos
-  // participação medida sobre seguros ex-VGBL; VGBL aparece por último, à parte
-  const grupos = Object.keys(D.susep.linhas).map((k) => ({ k, ...ltmResumo(k) }))
-    .sort((a, b) => (a.k === "VGBL") - (b.k === "VGBL") || b.atual.pd - a.atual.pd);
-  const totalTudo = grupos.filter((g) => g.k !== "VGBL").reduce((s, g) => s + g.atual.pd, 0) || 1;
-  const max = Math.max(...grupos.filter((g) => g.k !== "VGBL").map((g) => g.atual.pd / totalTudo));
-  tabela("t-seg-grupos", ["Grupo de ramos", "Prêmio emitido", "Var. a/a", "Part. (ex-VGBL)", "Sinistralidade", "Comissionamento"],
+  const grupos = Object.keys(D.susep.linhas).map((k) => ({ k, ...ltmResumo(k) })).sort((a, b) => b.atual.pd - a.atual.pd);
+  const totalTudo = grupos.reduce((s, g) => s + g.atual.pd, 0) || 1;
+  const max = Math.max(...grupos.map((g) => g.atual.pd / totalTudo));
+  tabela("t-seg-grupos", ["Grupo de ramos", "Prêmio emitido", "Var. a/a", "Participação", "Sinistralidade", "Comissionamento"],
     grupos.filter((g) => g.atual.pd > 0).map((g) => ({
       attrs: ` data-k="${g.k}" class="clicavel${g.k === selSeg ? " ativo" : ""}"`,
       cells: [esc(nomeLinha(g.k)), reais(g.atual.pd), delta(g.temAnt ? var_(g.atual.pd, g.ant.pd) : null),
-        g.k === "VGBL" ? "—" : `${pct(g.atual.pd / totalTudo)}${barra(g.atual.pd / totalTudo, max)}`, pct(g.atual.so / g.atual.pg), pct(g.atual.dc / g.atual.pg)],
+        `${pct(g.atual.pd / totalTudo)}${barra(g.atual.pd / totalTudo, max)}`, pct(g.atual.so / g.atual.pg), pct(g.atual.dc / g.atual.pg)],
     })), { onClick: (k) => { selSeg = k; renderSeguros(); window.scrollTo({ top: 0, behavior: "smooth" }); } });
 
   // tabela de ramos
-  const ramos = D.susep.ramos.filter((x) => selSeg === "SEG" ? !x.vgbl : selSeg === "VGBL" ? x.vgbl : x.gr === selSeg && !x.vgbl).slice(0, 40);
+  const ramos = D.susep.ramos.filter((x) => selSeg === "SEG" || x.gr === selSeg).slice(0, 40);
   const totR = ramos.reduce((s, x) => s + x.pd, 0) || 1;
   document.getElementById("t-seg-ramos-tit").textContent = `Principais ramos — ${nomeLinha(selSeg)}, últimos 12 meses`;
   tabela("t-seg-ramos", ["Ramo", "Prêmio emitido", "Var. a/a", "Part. no segmento", "Sinistralidade", "Comissionamento"],
@@ -260,9 +282,10 @@ function renderConc() {
   if (!sel.options.length) {
     const ops = [];
     if (D.susep) {
-      ops.push(["S:SEG", "Seguros (exceto VGBL)"]);
-      Object.entries(D.susep.linhas).filter(([k]) => k !== "VGBL" && D.susep.concentracao[k]).sort((a, b) => a[1].localeCompare(b[1])).forEach(([k, n]) => ops.push([`S:${k}`, `Seguros · ${n}`]));
-      if (D.susep.concentracao.VGBL) ops.push(["S:VGBL", "VGBL"]);
+      ops.push(["S:SEG", "Seguros · todos os ramos"]);
+      Object.entries(D.susep.linhas).filter(([k]) => D.susep.concentracao[k]).sort((a, b) => a[1].localeCompare(b[1])).forEach(([k, n]) => ops.push([`S:${k}`, `Seguros · ${n}`]));
+      for (const [k, n] of [["VGBL", "Previdência · VGBL"], ["PGBL", "Previdência · PGBL"], ["TRAD", "Previdência tradicional"], ["CAP", "Capitalização"]])
+        if (D.susep.concentracao[k]) ops.push([`S:${k}`, n]);
     }
     if (D.ans) {
       if (D.ans.concentracao.MH) ops.push(["A:MH", "Saúde · médico-hospitalar"]);
@@ -278,7 +301,10 @@ function renderConc() {
   if (!c) return;
   const fmt = isS ? reais : vidas;
   const quem = isS ? "grupos econômicos" : "operadoras";
-  const periodo = isS ? `prêmio emitido em 12 meses até ${mesLongo(D.susep.ultima)}` : `beneficiários em ${mesLongo(D.ans.ultima)}`;
+  const isProd = isS && !!prod(chave);
+  const medida = isProd ? (chave === "CAP" ? "receita de capitalização" : "contribuições") : isS ? "prêmio emitido" : "beneficiários";
+  const ultimaS = isProd ? prodLTM(chave)?.ultima ?? D.susep.ultima : D.susep.ultima;
+  const periodo = isS ? `${medida} em 12 meses até ${mesLongo(ultimaS)}` : `beneficiários em ${mesLongo(D.ans.ultima)}`;
   const comp = isS ? "12 meses anteriores" : mesLongo(D.ans.comparacao);
   document.getElementById("conc-periodo").textContent = `Base: ${periodo}`;
 
@@ -290,14 +316,14 @@ function renderConc() {
   ].join("");
 
   document.getElementById("g-conc-tit").textContent = `Participação dos ${c.top.length} maiores ${quem}`;
-  document.getElementById("g-conc-nota").textContent = `% do ${isS ? "prêmio emitido" : "total de beneficiários"} — atual x ${comp}`;
+  document.getElementById("g-conc-nota").textContent = `% ${isS ? `das ${medida}`.replace("das prêmio emitido", "do prêmio emitido").replace("das receita", "da receita") : "do total de beneficiários"} — atual x ${comp}`;
   const rot = c.top.map((t) => (t.nome.length > 34 ? t.nome.slice(0, 32) + "…" : t.nome));
   Graf.render("g-conc", "hbar", { labels: rot, fmt: pctN, fmtTip: pctTip, series: [
     L("Atual", c.top.map((t) => t.share * 100), 0),
     { name: comp.charAt(0).toUpperCase() + comp.slice(1), data: c.top.map((t) => (t.share_ant ?? 0) * 100), color: css("--axis") },
   ] });
 
-  tabela("t-conc", ["#", isS ? "Grupo econômico" : "Operadora", ...(isS ? [] : ["Modalidade"]), isS ? "Prêmio emitido" : "Beneficiários", `Var. vs ${comp}`, "Participação", "Var. participação"],
+  tabela("t-conc", ["#", isS ? "Grupo econômico" : "Operadora", ...(isS ? [] : ["Modalidade"]), isS ? medida.charAt(0).toUpperCase() + medida.slice(1) : "Beneficiários", `Var. vs ${comp}`, "Participação", "Var. participação"],
     c.top.map((t, i) => ({ cells: [String(i + 1), esc(t.nome), ...(isS ? [] : [esc(t.mod || "")]), fmt(t.v), delta(var_(t.v, t.v_ant)), pct(t.share), deltaPP(t.share_ant == null ? null : t.share - t.share_ant)] })));
 
 }

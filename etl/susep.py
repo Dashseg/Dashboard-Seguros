@@ -6,7 +6,9 @@ Arquivos usados de dentro do BaseCompleta.zip:
   Ses_cias.csv         empresas e grupos econômicos (coenti, noenti, cogrupo, nogrupo)
   Ses_ramos.csv        nomes dos ramos (coramo, noramo)
   Ses_gruposramos.csv  nomes dos grupos de ramos (GRACODIGO, GRANOME)
-  ses_pgbl_contrib*    contribuições de PGBL (opcional)
+  Ses_grupos_economicos.csv  grupo econômico de cada empresa, mês a mês
+  Ses_Contrib_Benef.csv      contribuições de previdência por tipo (VGBL, PGBL, tradicional)
+  ses_cap_uf.csv             receitas de capitalização
 
 Métricas:
   prêmio emitido  = premio_direto
@@ -17,6 +19,7 @@ Métricas:
 from __future__ import annotations
 
 import os
+import re
 import zipfile
 from pathlib import Path
 
@@ -129,31 +132,6 @@ def _ler_seguros(zf: zipfile.ZipFile, nome: str) -> pd.DataFrame:
     return df
 
 
-def _ler_opcional_serie(zf: zipfile.ZipFile, nome: str | None, rotulo: str) -> list[dict]:
-    """Série mensal total de um arquivo auxiliar (ex.: contribuições PGBL)."""
-    if not nome:
-        log.info("%s: arquivo não encontrado no zip — pulando", rotulo)
-        return []
-    try:
-        df = _ler_csv(zf, nome)
-        log.info("%s (%s) — colunas: %s", rotulo, nome, ", ".join(df.columns))
-        if "damesano" not in df.columns:
-            return []
-        valores = [c for c in df.columns if c not in ("damesano", "coenti", "uf", "coramo", "cogrupo", "noenti")]
-        val = next((c for c in valores if any(p in c for p in ("contrib", "receit", "valor", "premio", "arrec"))), None)
-        val = val or (valores[0] if valores else None)
-        if not val:
-            return []
-        df["m"] = pd.to_numeric(df["damesano"], errors="coerce")
-        df = df[df["m"] >= ANO_INICIO * 100]
-        df["v"] = para_numero(df[val])
-        s = df.groupby("m")["v"].sum().sort_index()
-        return [{"m": int(m), "v": float(v)} for m, v in s.items()]
-    except Exception as e:  # opcional: nunca derruba a atualização
-        log.warning("%s: falha ao ler (%s)", rotulo, e)
-        return []
-
-
 # Cadastros com dados de pessoas: nunca entram no registro de estrutura
 _PESSOAIS = ("administradores", "contatos", "part_acion", "dependencias")
 
@@ -216,6 +194,82 @@ def _concentracao(df: pd.DataFrame, ltm: list[int], ltm_ant: list[int]) -> dict:
     }
 
 
+NOMES_PRODUTO = {"VGBL": "VGBL", "PGBL": "PGBL", "TRAD": "Previdência tradicional", "CAP": "Capitalização"}
+
+
+def _sem_codigo(txt) -> str:
+    t = re.sub(r"^\s*\d+\s*-\s*", "", str(txt or "")).strip()
+    t = re.sub(r"\s{2,}", " ", t)
+    return t[:1].upper() + t[1:] if t else t
+
+
+def _produto(txt: str) -> str:
+    t = norm(txt)
+    if "vgbl" in t:
+        return "VGBL"
+    if "pgbl" in t:
+        return "PGBL"
+    if "trad" in t or "prev" in t:
+        return "TRAD"
+    return str(txt).strip() or "OUTROS"
+
+
+def _mapa_grupo_economico(cias: pd.DataFrame, hist: pd.DataFrame) -> dict:
+    """coenti -> nome do grupo econômico mais recente (ou o nome da empresa, se não tiver grupo)."""
+    mapa = {}
+    if not cias.empty and "coenti" in cias.columns:
+        c = cias.assign(coenti=cias["coenti"].str.strip().str.lstrip("0"))
+        nomes = c.get("noenti", c["coenti"]).fillna("").str.strip()
+        mapa.update(dict(zip(c["coenti"], nomes.str.title())))
+    if not hist.empty and {"coenti", "damesano", "nogrupo"} <= set(hist.columns):
+        h = hist.assign(coenti=hist["coenti"].str.strip().str.lstrip("0"),
+                        m=pd.to_numeric(hist["damesano"], errors="coerce"),
+                        nogrupo=hist["nogrupo"].fillna("").str.strip())
+        h = h[h["nogrupo"] != ""].sort_values("m").drop_duplicates("coenti", keep="last")
+        mapa.update(dict(zip(h["coenti"], h["nogrupo"].str.title())))
+        log.info("grupos econômicos: %d empresas com grupo (base até %s)", len(h), int(h["m"].max()) if len(h) else "-")
+    return mapa
+
+
+def _ler_produtos(zf: zipfile.ZipFile) -> pd.DataFrame:
+    """Contribuições de previdência (por tipo de produto) e receitas de capitalização, por empresa e mês."""
+    partes = []
+    try:
+        nome = _membro(zf, "contrib_benef")
+        if nome:
+            df = _ler_csv(zf, nome)
+            if {"damesano", "coenti", "tipoprod", "contrib"} <= set(df.columns):
+                log.info("Ses_Contrib_Benef — tipos de produto: %s", sorted(df["tipoprod"].dropna().str.strip().unique().tolist()))
+                partes.append(pd.DataFrame({"m": pd.to_numeric(df["damesano"], errors="coerce"),
+                                            "coenti": df["coenti"].str.strip().str.lstrip("0"),
+                                            "produto": df["tipoprod"].map(_produto), "pd": para_numero(df["contrib"])}))
+        tem_pgbl = any((p["produto"] == "PGBL").any() for p in partes)
+        nome = _membro(zf, "pgbl_contrib")
+        if nome and not tem_pgbl:
+            df = _ler_csv(zf, nome)
+            if {"damesano", "coenti", "valor"} <= set(df.columns):
+                partes.append(pd.DataFrame({"m": pd.to_numeric(df["damesano"], errors="coerce"),
+                                            "coenti": df["coenti"].str.strip().str.lstrip("0"),
+                                            "produto": "PGBL", "pd": para_numero(df["valor"])}))
+        nome = _membro(zf, "ses_cap_uf")
+        if nome:
+            df = _ler_csv(zf, nome)
+            if {"damesano", "coenti", "premio"} <= set(df.columns):
+                partes.append(pd.DataFrame({"m": pd.to_numeric(df["damesano"], errors="coerce"),
+                                            "coenti": df["coenti"].str.strip().str.lstrip("0"),
+                                            "produto": "CAP", "pd": para_numero(df["premio"])}))
+    except Exception as e:  # noqa: BLE001 — opcional: nunca derruba a atualização
+        log.warning("previdência/capitalização: falha ao ler (%s)", e)
+    if not partes:
+        return pd.DataFrame(columns=["m", "coenti", "produto", "pd"])
+    df = pd.concat(partes).dropna(subset=["m"])
+    df["m"] = df["m"].astype(int)
+    out = df.groupby(["m", "coenti", "produto"], as_index=False)["pd"].sum()
+    for k, g in out.groupby("produto"):
+        log.info("produto %s: %d meses (%d a %d)", k, g["m"].nunique(), g["m"].min(), g["m"].max())
+    return out
+
+
 def processar() -> dict:
     local = os.environ.get("SUSEP_ZIP")
     if local:
@@ -241,39 +295,35 @@ def processar() -> dict:
         fatos = _ler_seguros(zf, nome_seg)
 
         cias = _ler_csv(zf, _membro(zf, "ses_cias")) if _membro(zf, "ses_cias") else pd.DataFrame()
+        nome_ge = _membro(zf, "grupos_economicos")
+        grupos_hist = _ler_csv(zf, nome_ge) if nome_ge else pd.DataFrame()
         ramos = _ler_csv(zf, _membro(zf, "ses_ramos")) if _membro(zf, "ses_ramos") else pd.DataFrame()
         nome_gr = _membro(zf, "gruposramos")
         grupos_ramo = _ler_csv(zf, nome_gr) if nome_gr else pd.DataFrame()
-        pgbl = _ler_opcional_serie(zf, _membro(zf, "pgbl", "contrib"), "PGBL contribuições")
+        produtos = _ler_produtos(zf)
 
-    # --- dimensões
+    # --- dimensões (nomes sem o código na frente: "0531 - Automóvel - Casco" -> "Automóvel - Casco")
     nome_ramo, nome_grupo = {}, dict(GRUPOS_PADRAO)
     if not ramos.empty and "coramo" in ramos.columns:
         ramos["coramo"] = ramos["coramo"].str.strip().str.zfill(4)
-        nome_ramo = dict(zip(ramos["coramo"], ramos.get("noramo", ramos["coramo"]).str.strip()))
+        nome_ramo = dict(zip(ramos["coramo"], ramos.get("noramo", ramos["coramo"]).map(_sem_codigo)))
     if not grupos_ramo.empty and {"gracodigo", "granome"} <= set(grupos_ramo.columns):
         cod = grupos_ramo["gracodigo"].str.replace(r"\.0$", "", regex=True).str.strip().str.zfill(2)
-        nome_grupo.update(dict(zip(cod, grupos_ramo["granome"].str.strip().str.title())))
+        nome_grupo.update(dict(zip(cod, grupos_ramo["granome"].map(_sem_codigo))))
 
-    grupo_eco = {}
-    if not cias.empty and "coenti" in cias.columns:
-        cias["coenti"] = cias["coenti"].str.strip().str.lstrip("0")
-        nomes = cias.get("noenti", cias["coenti"]).fillna("").str.strip()
-        grupos = cias.get("nogrupo", pd.Series("", index=cias.index)).fillna("").str.strip()
-        rotulo = grupos.where(grupos != "", nomes).str.title()
-        grupo_eco = dict(zip(cias["coenti"], rotulo))
+    grupo_eco = _mapa_grupo_economico(cias, grupos_hist)
+    rot_eco = lambda s: s.map(grupo_eco).fillna("Empresa " + s)  # noqa: E731
 
     fatos["gr"] = fatos["coramo"].str[:2]
-    fatos["vgbl"] = fatos["coramo"].map(lambda c: "vgbl" in norm(nome_ramo.get(c, "")))
-    fatos["linha"] = np.where(fatos["vgbl"], "VGBL", fatos["gr"])
-    fatos["grupo_eco"] = fatos["coenti"].map(grupo_eco).fillna("Empresa " + fatos["coenti"])
+    fatos["linha"] = fatos["gr"]
+    fatos["grupo_eco"] = rot_eco(fatos["coenti"])
 
     meses = sorted(fatos["m"].unique().tolist())
     ultima = meses[-1]
     ltm, ltm_ant = _ltm(meses, ultima), _ltm(meses, ultima, 12)
     log.info("SUSEP: %d meses (%d a %d)", len(meses), meses[0], ultima)
 
-    # --- série mensal por linha (grupo de ramo ou VGBL)
+    # --- série mensal por grupo de ramos
     met = ["pd", "pg", "so", "dc"]
     serie = fatos.groupby(["m", "linha"], as_index=False)[met].sum()
     serie_rows = [[int(r.m), r.linha, float(r.pd), float(r.pg), float(r.so), float(r.dc)] for r in serie.itertuples()]
@@ -287,31 +337,43 @@ def processar() -> dict:
             continue
         lista_ramos.append({
             "cod": cod, "nome": nome_ramo.get(cod, f"Ramo {cod}"), "gr": cod[:2],
-            "vgbl": "vgbl" in norm(nome_ramo.get(cod, "")),
             "pd": float(r.pd), "pd_ant": float(r_ant.get(cod, 0.0)),
             "sin": float(r.so / r.pg) if r.pg > 0 else None,
             "com": float(r.dc / r.pg) if r.pg > 0 else None,
         })
     lista_ramos.sort(key=lambda x: -x["pd"])
 
-    # --- concentração por linha + total de seguros (ex-VGBL)
-    conc = {"SEG": _concentracao(fatos[~fatos["vgbl"]], ltm, ltm_ant)}
+    # --- concentração: seguros (todos os grupos) e cada grupo de ramos
+    conc = {"SEG": _concentracao(fatos, ltm, ltm_ant)}
     for linha in sorted(fatos["linha"].unique()):
         c = _concentracao(fatos[fatos["linha"] == linha], ltm, ltm_ant)
         if c:
             conc[linha] = c
 
-    linhas_usadas = sorted(set(serie["linha"]))
+    # --- previdência e capitalização (contribuições / receitas mensais)
+    saida_prod = {}
+    if not produtos.empty:
+        produtos = produtos[produtos["m"] >= ANO_INICIO * 100]
+        produtos["grupo_eco"] = rot_eco(produtos["coenti"])
+        for chave, df in produtos.groupby("produto"):
+            s = df.groupby("m")["pd"].sum().sort_index()
+            m_prod = s.index.tolist()
+            saida_prod[chave] = {"nome": NOMES_PRODUTO.get(chave, chave), "serie": [[int(m), float(v)] for m, v in s.items()]}
+            if len(m_prod) >= 12:
+                c = _concentracao(df, _ltm(m_prod, m_prod[-1]), _ltm(m_prod, m_prod[-1], 12))
+                if c:
+                    conc[chave] = c
+
     return {
         "fonte": "SUSEP — SES (Base Completa)",
         "ultima": int(ultima), "meses": [int(m) for m in meses],
         "ltm": [int(m) for m in ltm],
-        "linhas": {l: ("VGBL" if l == "VGBL" else nome_grupo.get(l, f"Grupo {l}")) for l in linhas_usadas},
+        "linhas": {l: nome_grupo.get(l, f"Grupo {l}") for l in sorted(set(serie["linha"]))},
         "serie_cols": ["m", "linha", "pd", "pg", "so", "dc"],
         "serie": serie_rows,
         "ramos": lista_ramos,
         "concentracao": conc,
-        "pgbl": pgbl,
+        "produtos": saida_prod,
     }
 
 

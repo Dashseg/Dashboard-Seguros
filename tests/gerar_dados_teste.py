@@ -21,9 +21,9 @@ def br(v: float) -> str:
 
 
 # ------------------------------------------------------------------ SUSEP
-ramos = [("0531", "Automóvel - Casco", "05"), ("0553", "RCF-V", "05"), ("0114", "Compreensivo Residencial", "01"),
+ramos = [("0531", "0531 - Automóvel - Casco", "05"), ("0553", "RCF-V", "05"), ("0114", "Compreensivo Residencial", "01"),
          ("0118", "Compreensivo Empresarial", "01"), ("0977", "Prestamista", "09"), ("0993", "Vida em Grupo", "09"),
-         ("1391", "Vida Individual", "13"), ("1392", "VGBL", "13"), ("1102", "Agrícola com cobertura do FESR", "11"),
+         ("1391", "Vida Individual", "13"), ("1102", "Agrícola com cobertura do FESR", "11"),
          ("0775", "Garantia Segurado - Setor Público", "07"), ("0351", "RC Geral", "03"), ("0621", "Transporte Nacional", "06")]
 grupos_ramo = {"01": "PATRIMONIAL", "03": "RESPONSABILIDADES", "05": "AUTOMÓVEL", "06": "TRANSPORTES",
                "07": "RISCOS FINANCEIROS", "09": "PESSOAS COLETIVO", "11": "RURAL", "13": "PESSOAS INDIVIDUAL"}
@@ -41,17 +41,25 @@ for ano in range(2019, 2027):
             for cod, _, _ in ramos:
                 if random.random() < 0.35:
                     continue
-                p = 9e8 * peso * fator * random.uniform(0.5, 1.5) * (6 if cod == "1392" else 1)
+                p = 9e8 * peso * fator * random.uniform(0.5, 1.5)
                 pg = p * random.uniform(0.9, 1.0)
-                so = pg * random.uniform(0.3, 0.75) * (0.05 if cod == "1392" else 1)
-                dc = pg * random.uniform(0.1, 0.3) * (0.02 if cod == "1392" else 1)
+                so = pg * random.uniform(0.3, 0.75)
+                dc = pg * random.uniform(0.1, 0.3)
                 linhas.append(f"{ano}{mes:02d};{coenti};{cog};{cod};{br(p)};{br(p)};{br(p*.8)};{br(pg)};0;{br(so*.9)};{br(so)};{br(dc)};{br(p)}")
 
 with zipfile.ZipFile(saida / "BaseCompleta.zip", "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("Ses_seguros.csv", "\n".join(linhas).encode("latin-1"))
-    z.writestr("Ses_cias.csv", ("coenti;noenti;cogrupo;nogrupo\n" + "\n".join(";".join(c) for c in cias)).encode("latin-1"))
+    z.writestr("Ses_cias.csv", ("Coenti;Noenti;Cogrupo;Nogrupo\n" + "\n".join(f"{c[0]};{c[1]};;" for c in cias)).encode("latin-1"))
     z.writestr("Ses_ramos.csv", ("coramo;noramo\n" + "\n".join(f"{c};{n}" for c, n, _ in ramos)).encode("latin-1"))
-    z.writestr("Ses_gruposramos.csv", ("GRAID;GRANOME;GRACODIGO\n" + "\n".join(f"{i};{n};{c}" for i, (c, n) in enumerate(grupos_ramo.items()))).encode("latin-1"))
+    z.writestr("Ses_gruposramos.csv", ("GRAID;GRANOME;GRACODIGO\n" + "\n".join(f"{i};{c} - {n.title()};{c}" for i, (c, n) in enumerate(grupos_ramo.items()))).encode("latin-1"))
+    ge = ["damesano;coenti;noenti;cogrupo;nogrupo"] + [f"202501;{c[0]};{c[1]};{c[2]};{c[3]}" for c in cias]
+    z.writestr("Ses_grupos_economicos.csv", "\n".join(ge).encode("latin-1"))
+    cb = ["coenti;damesano;tipoProd;contrib;benef"] + [f"{c[0]};{a}{m:02d};{t};{br(random.uniform(1e8, 9e8) * (8 if t == 'VGBL' else 1))};0"
+          for c in cias[:12] for a in range(2021, 2027) for m in range(1, 13) for t in ("VGBL", "PGBL", "PrevTrad") if not (a == 2026 and m > 7)]
+    z.writestr("Ses_Contrib_Benef.csv", "\n".join(cb).encode("latin-1"))
+    cap = ["COENTI;DAMESANO;UF;PREMIO;RESGPAGO;SORTPAGO;NUMPARTIC;RESGATANTES;SORTEIOS"] + [f"{c[0]};{a}{m:02d};SP;{br(random.uniform(1e8, 5e8))};0;0;0;0;0"
+          for c in cias[:6] for a in range(2021, 2027) for m in range(1, 13) if not (a == 2026 and m > 7)]
+    z.writestr("ses_cap_uf.csv", "\n".join(cap).encode("latin-1"))
     pg = ["coenti;damesano;contribuicoes"] + [f"1001;{a}{m:02d};{br(1.5e9*(1+(a-2019)*.07))}" for a in range(2019, 2027) for m in range(1, 13) if not (a == 2026 and m > 7)]
     z.writestr("ses_pgbl_contrib.csv", "\n".join(pg).encode("latin-1"))
 print("SUSEP ok:", len(linhas) - 1, "linhas")
