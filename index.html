@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Seguros & Saúde</title>
+<meta name="description" content="Tamanho, crescimento, sinistralidade e concentração do mercado de seguros (SUSEP) e saúde suplementar (ANS).">
+<link rel="stylesheet" href="style.css">
+<script src="charts.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="topo">
+  <div class="topo-in">
+    <div>
+      <h1>Painel Seguros &amp; Saúde</h1>
+      <p class="sub" id="sub">Mercado segurador (SUSEP) e saúde suplementar (ANS)</p>
+    </div>
+    <nav class="abas" role="tablist" aria-label="Seções">
+      <button role="tab" data-aba="geral" aria-selected="true">Visão geral</button>
+      <button role="tab" data-aba="seguros">Seguros</button>
+      <button role="tab" data-aba="saude">Saúde suplementar</button>
+      <button role="tab" data-aba="conc">Concentração</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div id="aviso" class="aviso" hidden></div>
+
+  <!-- ===================================================== VISÃO GERAL -->
+  <section id="aba-geral" class="aba">
+    <div class="tiles" id="tiles-geral"></div>
+    <div class="grade2">
+      <article class="card">
+        <h2>Prêmios emitidos — acumulado 12 meses</h2>
+        <p class="nota">Seguros (exceto VGBL) e VGBL, em R$ bilhões</p>
+        <div class="graf" id="g-geral-premios"></div>
+      </article>
+      <article class="card">
+        <h2>Beneficiários de planos</h2>
+        <p class="nota">Vínculos ativos no mês, em milhões</p>
+        <div class="graf" id="g-geral-benef"></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================================================== SEGUROS -->
+  <section id="aba-seguros" class="aba" hidden>
+    <div class="filtros">
+      <label>Segmento <select id="f-seg-linha"></select></label>
+      <span class="filtro-info" id="seg-periodo"></span>
+    </div>
+    <div class="tiles" id="tiles-seg"></div>
+    <div class="grade2">
+      <article class="card">
+        <h2>Prêmio emitido mensal</h2>
+        <p class="nota">Valor por mês (últimos 5 anos); a linha é a média móvel de 12 meses</p>
+        <div class="graf" id="g-seg-mensal"></div>
+      </article>
+      <article class="card">
+        <h2>Sinistralidade e comissionamento</h2>
+        <p class="nota">% do prêmio ganho, janela móvel de 12 meses</p>
+        <div class="graf" id="g-seg-indices"></div>
+      </article>
+    </div>
+    <article class="card">
+      <h2>Grupos de ramos — últimos 12 meses</h2>
+      <p class="nota">Clique em uma linha para filtrar o painel por aquele grupo</p>
+      <div class="tabela-wrap"><table id="t-seg-grupos"></table></div>
+    </article>
+    <article class="card">
+      <h2 id="t-seg-ramos-tit">Principais ramos — últimos 12 meses</h2>
+      <div class="tabela-wrap"><table id="t-seg-ramos"></table></div>
+    </article>
+  </section>
+
+  <!-- ===================================================== SAÚDE -->
+  <section id="aba-saude" class="aba" hidden>
+    <div class="filtros">
+      <label>Cobertura
+        <select id="f-ans-cob">
+          <option value="MH">Médico-hospitalar</option>
+          <option value="OD">Exclusivamente odontológico</option>
+        </select>
+      </label>
+      <span class="filtro-info" id="ans-periodo"></span>
+    </div>
+    <div class="tiles" id="tiles-ans"></div>
+    <div class="grade2">
+      <article class="card">
+        <h2>Beneficiários por tipo de contratação</h2>
+        <p class="nota">Vínculos ativos no mês, em milhões</p>
+        <div class="graf" id="g-ans-contr"></div>
+      </article>
+      <article class="card">
+        <h2>Beneficiários por UF</h2>
+        <p class="nota">Último mês, em milhões — 12 maiores</p>
+        <div class="graf alto" id="g-ans-uf"></div>
+      </article>
+    </div>
+    <article class="card">
+      <h2>Por modalidade de operadora</h2>
+      <div class="tabela-wrap"><table id="t-ans-mod"></table></div>
+    </article>
+    <article class="card">
+      <h2>Todas as UFs</h2>
+      <div class="tabela-wrap"><table id="t-ans-uf"></table></div>
+    </article>
+  </section>
+
+  <!-- ===================================================== CONCENTRAÇÃO -->
+  <section id="aba-conc" class="aba" hidden>
+    <div class="filtros">
+      <label>Mercado <select id="f-conc"></select></label>
+      <span class="filtro-info" id="conc-periodo"></span>
+    </div>
+    <div class="tiles" id="tiles-conc"></div>
+    <article class="card">
+      <h2 id="g-conc-tit">Participação dos maiores</h2>
+      <p class="nota" id="g-conc-nota"></p>
+      <div class="graf alto" id="g-conc"></div>
+    </article>
+    <article class="card">
+      <h2>Ranking</h2>
+      <div class="tabela-wrap"><table id="t-conc"></table></div>
+    </article>
+  </section>
+</main>
+
+<footer class="rodape">
+  <p id="status"></p>
+  <p>Fontes: <a href="https://www2.susep.gov.br/menuestatistica/ses/" target="_blank" rel="noopener">SUSEP — SES</a> ·
+     <a href="https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/" target="_blank" rel="noopener">ANS — Dados Abertos</a>.
+     Dados públicos, sujeitos a recargas pelos órgãos. Atualização automática semanal.</p>
+</footer>
+</body>
+</html>
