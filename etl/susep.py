@@ -26,6 +26,7 @@ import pandas as pd
 from common import DOWNLOAD_DIR, abrir_texto, detectar_separador, download, env_int, log, norm, salvar_json
 
 URLS = [
+    "https://www2.susep.gov.br/download/estatisticas/BaseCompleta.zip",
     "https://www2.susep.gov.br/redarq.asp?arq=BaseCompleta%2ezip",
     "https://www2.susep.gov.br/menuestatistica/ses/BaseDados/BaseCompleta.zip",
 ]

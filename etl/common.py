@@ -20,7 +20,10 @@ CACHE_DIR = ROOT / "data"          # cache versionado no repositório (agregados
 DOWNLOAD_DIR = ROOT / ".downloads"  # arquivos brutos (não versionados)
 SITE_DATA = ROOT / "site" / "data"  # JSON consumido pelo site
 
-HEADERS = {"User-Agent": "dashboard-seguros/1.0 (+https://github.com)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+    "Accept": "*/*",
+}
 
 log = logging.getLogger("etl")
 
