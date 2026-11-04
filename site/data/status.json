@@ -1,0 +1,12 @@
+{
+ "susep": {
+  "ok": false,
+  "em": "2026-11-04T17:13:14+00:00",
+  "erro": "BaseCompleta.zip indisponível em todas as URLs",
+  "ultimo_ok": null
+ },
+ "ans": {
+  "ok": true,
+  "em": "2026-11-04T17:27:10+00:00"
+ }
+}
