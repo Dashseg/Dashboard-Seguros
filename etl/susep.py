@@ -225,7 +225,9 @@ def _mapa_grupo_economico(cias: pd.DataFrame, hist: pd.DataFrame) -> dict:
         h = hist.assign(coenti=hist["coenti"].str.strip().str.lstrip("0"),
                         m=pd.to_numeric(hist["damesano"], errors="coerce"),
                         nogrupo=hist["nogrupo"].fillna("").str.strip())
-        h = h[h["nogrupo"] != ""].sort_values("m").drop_duplicates("coenti", keep="last")
+        # "Independente" / "Outros Grupos" não são grupos de verdade: a empresa aparece pelo próprio nome
+        sem_grupo = h["nogrupo"].map(norm).isin({"independente", "independentes", "outros grupos", "outros", "sem grupo"})
+        h = h[(h["nogrupo"] != "") & ~sem_grupo].sort_values("m").drop_duplicates("coenti", keep="last")
         mapa.update(dict(zip(h["coenti"], h["nogrupo"].str.title())))
         log.info("grupos econômicos: %d empresas com grupo (base até %s)", len(h), int(h["m"].max()) if len(h) else "-")
     return mapa
