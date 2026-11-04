@@ -154,6 +154,37 @@ def _ler_opcional_serie(zf: zipfile.ZipFile, nome: str | None, rotulo: str) -> l
         return []
 
 
+# Cadastros com dados de pessoas: nunca entram no registro de estrutura
+_PESSOAIS = ("administradores", "contatos", "part_acion", "dependencias")
+
+
+def registrar_estrutura(zf: zipfile.ZipFile) -> None:
+    """Grava data/susep_estrutura.json com as colunas e 3 linhas de exemplo de cada arquivo do zip.
+
+    Serve para diagnosticar mudanças de layout da SUSEP sem precisar baixar a base inteira.
+    """
+    import json
+    from common import CACHE_DIR
+    out = {}
+    for nome in zf.namelist():
+        base = Path(nome).name
+        if not base.lower().endswith(".csv"):
+            continue
+        info = {"bytes": zf.getinfo(nome).file_size}
+        if not any(p in norm(base) for p in _PESSOAIS):
+            try:
+                with zf.open(nome) as bruto:
+                    txt = abrir_texto(bruto)
+                    linhas = [txt.readline().rstrip("\r\n") for _ in range(4)]
+                info["cabecalho"] = linhas[0]
+                info["exemplo"] = [l for l in linhas[1:] if l]
+            except Exception as e:  # noqa: BLE001
+                info["erro"] = str(e)
+        out[base] = info
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    (CACHE_DIR / "susep_estrutura.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 # ----------------------------------------------------------------------------- cálculos
 def _ltm(meses: list[int], ultima: int, deslocamento: int = 0) -> list[int]:
     i = meses.index(ultima) - deslocamento
@@ -203,6 +234,7 @@ def processar() -> dict:
 
     with zipfile.ZipFile(caminho) as zf:
         log.info("arquivos no zip: %s", ", ".join(Path(n).name for n in zf.namelist()))
+        registrar_estrutura(zf)
         nome_seg = _membro(zf, "ses_seguros")
         if not nome_seg:
             raise RuntimeError("Ses_seguros.csv não encontrado no zip")
